@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PDF</title>
+</head>
+<body>
+    <h1>Pakiet Szyb</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>szyba1</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for szyba in szyba_data %}
+                <tr>
+                    <td>{{ szyba.szyba1 }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3">Brak danych</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

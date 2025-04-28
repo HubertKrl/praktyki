@@ -1,0 +1,60 @@
+
+
+
+
+       <div class="modal-body">
+  <div class="modal fade" id="pakietModal" tabindex="-1" aria-labelledby="pakietModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="pakietModalLabel">Dodaj Pakiet Trzyszybowy</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+      </div>
+      <div class="modal-body">
+        <form id="pakietForm" method="post" action="{% url 'create_pakiet2'%}">
+          {% csrf_token %}
+          <!-- Ukryte pole formularza -->
+          {{ form.pakiet_type }}
+
+          <div class="mb-3">
+            <label for="szyba1" class="form-label">Szyba 1</label>
+            <select id="szyba1" name="szyba1" class="form-select" required>
+              <option value="">Wybierz szybę</option>
+              {% for szyb in szyba %}
+                <option value="{{ szyb.id }}">{{ szyb.nazwa }}{{szyb.grubosc}}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="ramka1" class="form-label">Ramka 1</label>
+            <select id="ramka1" name="ramka1" class="form-select">
+              <option value="">Wybierz ramkę</option>
+              {% for ramka in ramka %}
+                <option value="{{ ramka.id }}">{{ ramka.nazwa }} </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="szyba2" class="form-label">Szyba 2</label>
+            <select id="szyba2" name="szyba2" class="form-select" required>
+              <option value="">Wybierz szybę</option>
+              {% for szyb in szyba %}
+                <option value="{{ szyb.id }}">{{ szyb.nazwa }} {{szyb.grubosc}}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+            <button type="submit" class="btn btn-primary">Zapisz pakiet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+

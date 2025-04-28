@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PDF</title>
+</head>
+<body>
+    <h1>Pakiet Szyb</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>szyba1</th>
+                <th>ramka1</th>
+                <th>szyba2</th>
+                <th>ramka2</th>
+                <th>ramka3</th>
+                <th>grubosc calkowita</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for szyba in szyba_data %}
+                <tr>
+                    <td>{{ szyba.szyba1 }}</td>
+                    <td>{{ szyba.ramka1 }}</td>
+                    <td>{{ szyba.szyba2 }}</td>
+                    <td>{{ szyba.ramka2 }}</td>
+                    <td>{{ szyba.szyba3 }}</td>
+                    <td>{{ szyba.grubosc_calkowita }}mm</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3">Brak danych</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

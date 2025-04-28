@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista produktów</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <style>
+    body {
+      background-color: black;
+      color: white;
+    }
+    .navbar {
+      background-color: #000;
+    }
+    .navbar-nav .nav-link {
+      color: white;
+    }
+    .navbar-nav .nav-link:hover {
+      color: #0056b3;
+    }
+    .nav-item.active .nav-link {
+      background-color: #4CAF50;
+      border-radius: 5px;
+    }
+    .table {
+      background-color: #000;
+      color: white;
+      border-radius: 10px;
+    }
+    .table th, .table td {
+      color: white;
+      background-color: #333;
+      border: 1px solid #555;
+      padding: 1rem;
+    }
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: #444;
+    }
+    .thead-dark {
+      background-color: #222;
+      color: yellow;
+    }
+    .nav-link:hover {
+      background-color: #555;
+      color: white;
+    }
+    .nav-item.active .nav-link {
+      background-color: #4CAF50;
+      border-radius: 5px;
+    }
+    #pakietModal{
+    color:black;
+    }
+    .navbar .btn {
+    font-size: 0.7rem; /* Zmniejsza czcionkę */
+    padding: 0.20rem 0.4rem; /* Zmniejsza odstępy wokół tekstu */
+}
+  </style>
+</head>
+<body>
+  <!-- Nawigacja -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{% url 'index' %}">Menu</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item {% if request.path == '/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'index' %}">Home</a>
+          </li>
+          <li class="nav-item {% if request.path == '/pakiet_jednoszybowy/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'pakiet_jednoszybowy' %}">Pakiet Jednoszybowy</a>
+          </li>
+          <li class="nav-item {% if request.path == '/pakiet_dwuszybowy/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'pakiet_dwuszybowy' %}">Pakiet Dwuszybowy</a>
+          </li>
+          <li class="nav-item {% if request.path == '/pakiet_trzyszybowy/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'pakiet_trzyszybowy' %}">Pakiet Trzyszybowy</a>
+          </li>
+          <li class="nav-item {% if request.path == '/szyby/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'szyby' %}">Szyby</a>
+          </li>
+          <li class="nav-item {% if request.path == '/ramki/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'ramki' %}">Ramki</a>
+          </li>
+          <li>
+            <form action="{% url 'pdfg3' %}" method="GET">
+              <button type="submit" class="btn btn-dark">Generuj PDF</button>
+            </form>
+          </li>
+          <li>
+            <div class="text-center mb-4">
+              <!-- Przycisk wywołujący modal do dodawania pakietu -->
+              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pakietModal">
+                Dodaj pakiet
+              </button>
+            </div>
+          </li>
+          <li>
+            <form action="{% url 'export_xlsx' %}" method="get">
+            <button type="submit" class="btn btn-primary">
+                Pobierz Dane jako XLSX
+            </button>
+        </form>
+          </li>
+          <li>
+            <form action="{% url 'export_csv' %}" method="get">
+            <button type="submit" class="btn btn-primary">
+                Pobierz Dane jako CSV
+            </button>
+        </form>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'xml3' %}">XML</a>
+          </li>
+          <li>
+            <form method="post" action="/logout/">
+              {% csrf_token %}
+              <button class="btn btn-dark">Wyloguj</button>
+            </form>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Tabela z pakietami -->
+  <div class="container my-5">
+    <h1 class="text-center mb-4">Pakiety trzyszybowe</h1>
+    <table class="table table-bordered table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <th>Szyba 1</th>
+          <th>Ramka 1</th>
+          <th>Szyba 2</th>
+          <th>Ramka 2</th>
+          <th>Szyba 3</th>
+          <th>Grubość całkowita</th>
+          <th >gfactor</th>
+          <th>ufactor</th>
+          <th>rw</th>
+          <th>Akcje</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <!-- Wiersze zostaną dodane dynamicznie -->
+      </tbody>
+    </table>
+    <div id="scroll-sentinel" style="height: 1px;"></div>
+  </div>
+
+  <!-- Modal z formularzem (wstawiany poprzez includowanie szablonu) -->
+  {% include 'catalog2/create_pakiet.html' %}
+
+  <!-- Skrypty: obsługa formularza, ładowanie danych oraz przycisków edycji/usuwania -->
+
+<script>
+    // Obsługa dodawania pakietu
+    document.getElementById('pakietForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      let formData = new FormData(this);
+      let data = Object.fromEntries(formData.entries());
+      try {
+        const response = await fetch('{% url "glassthree-list-create" %}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: JSON.stringify(data)
+        });
+        if (!response.ok) {
+          throw new Error('Błąd przy dodawaniu pakietu');
+        }
+        const result = await response.json();
+        console.log('Sukces:', result);
+        // Schowanie modalu po udanym dodaniu
+        const modalEl = document.getElementById('pakietModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        modalInstance.hide();
+        location.reload();  // odświeżenie strony, aby pokazać nowo dodany pakiet
+      } catch (error) {
+        console.error('Błąd:', error);
+      }
+    });
+
+    // Ładowanie pakietów z API
+    let currentPage = 1;
+    let loading = false;
+
+
+  // Dodaj linię informacyjną, żeby wiedzieć, czy skrypt jest ładowany
+  console.log("Skrypt ładowany");
+
+  const userCanDelete = "{{ perms.catalog2.delete_glassthree|yesno:"true,false" }}";
+  const userCanChange = "{{ perms.catalog2.change_glassthree|yesno:"true,false" }}";
+
+  console.log('userCanDelete:', userCanDelete);
+  console.log('userCanChange:', userCanChange);
+
+  const loadPosts = async () => {
+    if (loading) return;
+    loading = true;
+    try {
+      const response = await fetch(`/api/pakiet_trzyszybowy/?page=${currentPage}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log('Odpowiedź z API:', data);
+      const container = document.getElementById("table-body");
+      data.results.forEach(pak3 => {
+        const row = document.createElement('tr');
+        let buttons = '';
+
+        if (userCanChange === "true") {
+          buttons += `<button class="btn btn-warning" onclick="editPakiet(${pak3.id})">Edytuj</button>`;
+        }
+        if (userCanDelete === "true") {
+          buttons += `<button class="btn btn-danger" onclick="deletePakiet(${pak3.id})">Usuń</button>`;
+        }
+        row.innerHTML = `
+          <td>${pak3.szyba1.nazwa}</td>
+          <td>${pak3.ramka1.nazwa}</td>
+          <td>${pak3.szyba2.nazwa}</td>
+          <td>${pak3.ramka2.nazwa}</td>
+          <td>${pak3.szyba3.nazwa}</td>
+          <td>${pak3.grubosc_calkowita}mm</td>
+          <td>${pak3.gfactor}</td>
+          <td>${pak3.ufactor}</td>
+          <td>${pak3.rw}</td>
+          <td>${buttons}</td>`;
+        container.appendChild(row);
+      });
+      if (data.next) {
+        currentPage++;
+        loading = false;
+      } else {
+        observer.disconnect();
+      }
+    } catch (error) {
+      console.error('Błąd ładowania danych:', error);
+    }
+  };
+
+  // Wywołaj loadPosts albo przypisz do observera/innego zdarzenia,
+  // żeby upewnić się, że funkcja jest wywoływana.
+  loadPosts();
+
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        loadPosts();
+      }
+    }, {
+      rootMargin: '100px',
+    });
+    observer.observe(document.querySelector('#scroll-sentinel'));
+    loadPosts();
+
+async function deletePakiet(id) {
+  if (!confirm("Czy na pewno chcesz usunąć ten pakiet?")) return;
+
+  try {
+    const response = await fetch(`/api/pakiet_trzyszybowy/delete/?id=${id}`, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+      }
+    });
+    if (!response.ok) {
+      const responseText = await response.text();
+      throw new Error(`Błąd usuwania pakietu: ${response.statusText} - ${responseText}`);
+    }
+    alert("Pakiet został usunięty!");
+    location.reload();
+  } catch (error) {
+    console.error("Błąd:", error);
+    alert("Nie udało się usunąć pakietu.");
+  }
+}
+    // Funkcja edytująca pakiet
+   async function editPakiet(id) {
+  try {
+    // Pobieramy pakiet – usuwamy zbędny ukośnik przy parametrach
+    const response = await fetch(`/api/pakiet_trzyszybowy/?id=${id}`);
+    if (!response.ok) {
+      // Dodatkowo logujemy status, by łatwiej debugować
+      throw new Error(`Nie udało się pobrać danych pakietu. Status: ${response.status}`);
+    }
+    const pakiet = await response.json();
+    console.log("Otrzymany pakiet:", pakiet);
+
+    // Ustawiamy wartości w formularzu
+    // Zakładamy, że zwrócone dane zawierają identyfikatory (np. pakiet.szyba1 to po prostu numer ID)
+    document.getElementById('szyba1').value = pakiet.szyba1;
+    document.getElementById('ramka1').value = pakiet.ramka1;
+    document.getElementById('szyba2').value = pakiet.szyba2;
+    document.getElementById('ramka2').value = pakiet.ramka2;
+    document.getElementById('szyba3').value = pakiet.szyba3;
+
+    // Otwarcie modalu edycji
+    const modalEl = new bootstrap.Modal(document.getElementById('pakietModal'));
+    modalEl.show();
+
+    // Ustawiamy obsługę submit formularza (aktualizacja – PUT)
+    document.getElementById('pakietForm').onsubmit = async function(event) {
+      event.preventDefault();
+      let formData = new FormData(this);
+      let data = Object.fromEntries(formData.entries());
+      try {
+        const updateResponse = await fetch(`/api/pakiet_trzyszybowy/update/?id=${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: JSON.stringify(data)
+        });
+        // Logujemy odpowiedź z serwera, by sprawdzić szczegóły błędu jeśli aktualizacja nie powiedzie się
+        const updateResponseText = await updateResponse.text();
+        if (!updateResponse.ok) {
+          throw new Error(`Błąd aktualizacji pakietu: ${updateResponse.status} - ${updateResponseText}`);
+        }
+        alert("Pakiet został zaktualizowany!");
+        location.reload(); // Odświeżenie strony po edycji
+      } catch (error) {
+        console.error("Błąd:", error);
+        alert("Nie udało się zaktualizować pakietu.");
+      }
+    };
+  } catch (error) {
+    console.error("Błąd:", error);
+    alert("Nie udało się pobrać danych do edycji.");
+  }
+}
+
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+          crossorigin="anonymous"></script>
+</body>
+</html>

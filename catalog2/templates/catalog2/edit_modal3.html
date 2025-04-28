@@ -1,0 +1,41 @@
+<!-- Modal do edycji pakietu -->
+<div class="modal fade" id="editPakietModal" tabindex="-1" aria-labelledby="editPakietModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editPakietModalLabel">Edytuj Pakiet</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editPakietForm">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="editSzyba1" class="form-label">Szyba 1</label>
+            <input type="text" class="form-control" id="editSzyba1" name="szyba1" placeholder="Podaj wartość pola Szyba 1">
+          </div>
+          <div class="mb-3">
+            <label for="editRamka1" class="form-label">Ramka 1</label>
+            <input type="text" class="form-control" id="editRamka1" name="ramka1" placeholder="Podaj wartość pola Ramka 1">
+          </div>
+          <div class="mb-3">
+            <label for="editSzyba2" class="form-label">Szyba 2</label>
+            <input type="text" class="form-control" id="editSzyba2" name="szyba2" placeholder="Podaj wartość pola Szyba 2">
+          </div>
+          <div class="mb-3">
+            <label for="editRamka2" class="form-label">Ramka 2</label>
+            <input type="text" class="form-control" id="editRamka2" name="ramka2" placeholder="Podaj wartość pola Ramka 2">
+          </div>
+          <div class="mb-3">
+            <label for="editSzyba3" class="form-label">Szyba 3</label>
+            <input type="text" class="form-control" id="editSzyba3" name="szyba3" placeholder="Podaj wartość pola Szyba 3">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+        <!-- Przyciskiem submit formularza powiązanego z modalem -->
+        <button type="submit" form="editPakietForm" class="btn btn-primary">Zapisz zmiany</button>
+      </div>
+    </div>
+  </div>
+</div>

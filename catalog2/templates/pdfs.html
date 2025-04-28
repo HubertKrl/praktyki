@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PDF</title>
+</head>
+<body>
+    <h1>Pakiet Szyb</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>nazwa</th>
+                <th>grubosc</th>
+                <th>zdjecie</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for szyba in szyba_data %}
+                <tr>
+                    <td>{{ szyba.nazwa }}</td>
+                    <td>{{szyba.grubosc}}</td>
+                    <td><img src="{{ szyba.image_url }}"/></td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3">Brak danych</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,20 @@
+
+
+{% load static %}
+<div class="container my-5">
+  <div class="card bg-dark text-white">
+    <div class="card-header">
+      <h3>Import CSV</h3>
+    </div>
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data" action="{% url 'import_csv' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="id_csv_file" class="form-label">Wybierz plik CSV</label>
+          <input type="file" class="form-control" id="id_csv_file" name="csv_file" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Import CSV</button>
+      </form>
+    </div>
+  </div>
+</div>
